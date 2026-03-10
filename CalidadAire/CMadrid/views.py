@@ -4,3 +4,9 @@ from django.shortcuts import render
 
 def index(request):
     return render(request, 'CMadrid/index.html')
+
+def map_view(request):
+    return render(request, 'CMadrid/map.html')
+
+def madrid_view(request):
+    return render(request, 'CMadrid/madrid.html')

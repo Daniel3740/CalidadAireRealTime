@@ -1,0 +1,32 @@
+{% extends 'CMadrid/base.html' %}
+
+{% block title %}Calidad del Aire en Madrid{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Calidad del Aire en Madrid</h1>
+    <p>La Comunidad de Madrid monitorea la calidad del aire en tiempo real a través de diversas estaciones distribuidas por la región. La calidad del aire se mide en términos de contaminantes como el dióxido de nitrógeno (NO₂), partículas en suspensión (PM10, PM2.5), ozono (O₃) y otros.</p>
+
+    <h2>Indicadores de Calidad del Aire</h2>
+    <ul>
+        <li><strong>Buena:</strong> Valores bajos de contaminantes, sin riesgo para la salud.</li>
+        <li><strong>Moderada:</strong> Aceptable, pero puede afectar a grupos sensibles.</li>
+        <li><strong>Mala:</strong> Puede causar problemas respiratorios en personas vulnerables.</li>
+        <li><strong>Muy Mala:</strong> Riesgo significativo para la salud de la población.</li>
+    </ul>
+
+    <h2>Mapa Interactivo</h2>
+    <p>A continuación, se muestra un mapa de la Comunidad de Madrid con las estaciones de monitoreo de calidad del aire.</p>
+    {% include 'CMadrid/map.html' %}
+
+    <h2>Datos Actuales</h2>
+    <!-- <p>Los datos se actualizan en tiempo real. Para información detallada, visita el sitio oficial de la Comunidad de Madrid.</p> -->
+</div>
+{% endblock %}

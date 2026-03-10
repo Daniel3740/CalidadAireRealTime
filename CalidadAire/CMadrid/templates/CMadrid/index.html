@@ -1,9 +1,15 @@
 {% extends 'CMadrid/base.html' %}
+{% load static %}
 
 {% block title %}Inicio{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
+    <div class="text-center mb-4">
+        <img src="{% static 'img/icono.jpg' %}" alt="Icono de Calidad del Aire" class="img-fluid" style="max-width: 200px;">
+        <img src="{% static 'img/locacion.avif' %}" alt="Icono de Calidad del Aire" class="img-fluid" style="max-width: 200px;">
+        <img src="{% static 'img/pm25.png' %}" alt="Icono de Calidad del Aire" class="img-fluid" style="max-width: 200px;">
+    </div>
     <h1 class="text-center">Bienvenido a Calidad del Aire en Tiempo Real</h1>
     <p class="text-center">Esta es la página de inicio de la aplicación.</p>
     

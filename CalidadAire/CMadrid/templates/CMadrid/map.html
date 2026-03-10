@@ -1,0 +1,17 @@
+{% extends 'CMadrid/base.html' %}
+
+{% block title %}Mapa de la Comunidad de Madrid{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Mapa de la Comunidad de Madrid</h1>
+    {% include 'CMadrid/_map.html' %}
+</div>
+{% endblock %}
