@@ -1,2 +1,2 @@
 # CalidadAireRealTime
-Calidad del aire comunidad de Madrid
+Calidad del aire en tiempo real, usando información disponible en datos abiertos.
