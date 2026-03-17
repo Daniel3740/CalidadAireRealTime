@@ -1,0 +1,28 @@
+<div class="card h-100 mb-4">
+    <div class="card-header text-center">
+        <h5>Distribución por Municipios</h5>
+    </div>
+    <div class="card-body">
+        <canvas id="municipalitiesChart"></canvas>
+    </div>
+</div>
+
+<script>
+var ctx2 = document.getElementById('municipalitiesChart').getContext('2d');
+var municipalitiesChart = new Chart(ctx2, {
+    type: 'pie',
+    data: {
+        labels: ['Madrid', 'Alcalá de Henares', 'Getafe', 'Leganés', 'Otros'],
+        datasets: [{
+            data: [40, 15, 10, 10, 25],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)'
+            ]
+        }]
+    }
+});
+</script>

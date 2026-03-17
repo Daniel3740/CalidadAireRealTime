@@ -26,12 +26,16 @@
     }).addTo(map);
 
     // Añadir marcadores de estaciones
-    var stations = JSON.parse('{{ stations|safe }}');
+    var stations = {{ stations|safe }};
     stations.forEach(function(station) {
-        L.marker([station.lat, station.lon]).addTo(map).bindPopup(
-            'Estación: ' + station.estacion_codigo + '<br>' +
-            'Municipio: ' + station.estacion_municipio + '<br>' +
-            'Dirección: ' + station.estacion_direccion_postal
+        // usar latitud/longitud como fuente principal (mantenemos lat/lon por compatibilidad)
+        var latitude = station.latitud || station.lat;
+        var longitude = station.longitud || station.lon;
+
+        L.marker([latitude, longitude]).addTo(map).bindPopup(
+            'Estación: ' + (station.estacion_codigo || station.COD_ESTACION) + '<br>' +
+            'Municipio: ' + (station.estacion_municipio || station.NOMBRE_ESTACION) + '<br>' +
+            'Dirección: ' + (station.estacion_direccion_postal || station.NOM_TIPO || 'N/A')
         );
     });
 
@@ -60,7 +64,7 @@
         }).addTo(map);
         
         // Hacer zoom en esa posición aumentando el zoom en 2 niveles
-        map.setView(e.latlng, map.getZoom() + 2);
+        // map.setView(e.latlng, map.getZoom() + 2);
         
         // Agregar evento para cuando se arrastra el marcador
         currentMarker.on('dragend', function() {
