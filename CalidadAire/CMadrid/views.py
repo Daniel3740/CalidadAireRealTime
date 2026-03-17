@@ -28,5 +28,9 @@ def madrid_view(request):
     data_loader = DatosCalidadAire()
     df = data_loader.obtener_datos()
     stations = df.to_dict('records')
-    context = {'stations': stations}
+    interpolaciones = data_loader.obtener_interpolaciones()
+    context = {
+        'stations': stations,
+        'interpolaciones': interpolaciones,
+    }
     return render(request, 'CMadrid/madrid.html', context)

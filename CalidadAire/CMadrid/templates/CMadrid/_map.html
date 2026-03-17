@@ -5,7 +5,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
-
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 <style>
     .google-marker {
         font-size: 40px;
@@ -26,7 +26,7 @@
     }).addTo(map);
 
     // Añadir marcadores de estaciones
-    var stations = {{ stations|safe }};
+    var stations = {{ stations|default:'[]'|safe }};
     stations.forEach(function(station) {
         // usar latitud/longitud como fuente principal (mantenemos lat/lon por compatibilidad)
         var latitude = station.latitud || station.lat;
@@ -39,64 +39,11 @@
         );
     });
 
-    var interpolaciones = {{ interpolaciones|safe }};
-    var heatmapGroup = L.layerGroup().addTo(map);
-
-    function getColor(value) {
-        if (value === null || value === undefined || isNaN(value)) return '#FFFFFF';
-        if (value < 20) return '#00FF00';
-        if (value < 40) return '#99FF00';
-        if (value < 60) return '#FFFF00';
-        if (value < 80) return '#FF9900';
-        if (value < 100) return '#FF0000';
-        return '#800000';
-    }
-
-    function buildHeatmap(contaminante) {
-        heatmapGroup.clearLayers();
-        var data = interpolaciones[contaminante] || [];
-        if (!data.length) {
-            console.log('No hay datos de interpolación para', contaminante);
-            return;
-        }
-
-        var sampleStep = Math.max(1, Math.floor(data.length / 1500));
-        data.forEach(function(point, idx) {
-            if (idx % sampleStep !== 0) return;
-            var lat = point[0];
-            var lon = point[1];
-            var val = point[2];
-            var color = getColor(val);
-            heatmapGroup.addLayer(L.circleMarker([lat, lon], {
-                radius: 5,
-                fillColor: color,
-                color: color,
-                fillOpacity: 0.55,
-                weight: 0
-            }).bindPopup('Contaminante: ' + contaminante + '<br>Valor: ' + val));
-        });
-    }
-
-    var contaminantes = Object.keys(interpolaciones);
-    var controlsDiv = L.control({position: 'topright'});
-    controlsDiv.onAdd = function() {
-        var div = L.DomUtil.create('div', 'info');
-        var select = L.DomUtil.create('select', '', div);
-        contaminantes.forEach(function(item) {
-            var option = document.createElement('option');
-            option.value = item;
-            option.text = item;
-            select.appendChild(option);
-        });
-
-        select.onchange = function() {
-            buildHeatmap(this.value);
-        };
-
-        buildHeatmap(contaminantes[0] || '');
-        return div;
-    };
-    controlsDiv.addTo(map);
+    var interpolaciones = {{ interpolaciones|default:'{}'|safe }};
+    var heat = L.heatLayer(interpolaciones['PM2.5'], {
+  radius: 25,
+  blur: 15,
+}).addTo(map);
 
     // Variable para almacenar el marcador actual
     var currentMarker = null;

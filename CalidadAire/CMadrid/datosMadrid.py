@@ -1,6 +1,10 @@
 import requests
 import pandas as pd
 from datetime import datetime
+import numpy as np
+from scipy.interpolate import griddata
+import json
+import random
 
 BASE_URL = "https://ciudadesabiertas.madrid.es/dynamicAPI/API/query"
 
@@ -59,7 +63,7 @@ dia = str(hoy.day).zfill(2)
 df_mediciones = df_mediciones[
     (df_mediciones["ANO"] == ano) &
     (df_mediciones["MES"] == mes) &
-    (df_mediciones["DIA"] == dia)
+    (df_mediciones["DIA"] == '16')
 ]
 
 # -------------------------
@@ -118,3 +122,48 @@ df_final = df_final.astype(object).where(pd.notnull(df_final), 'None')
 # 7. Mostrar resultado
 # -------------------------
 print(df_final.head())
+
+
+def generar_interpolaciones(df, resolucion=0.005, normalizar=True, max_puntos=5):
+    heatmaps = {}
+    contaminantes = df["CONTAMINANTE"].unique()
+
+    for cont in contaminantes:
+        df_cont = df[df["CONTAMINANTE"] == cont]
+        if df_cont.empty:
+            continue
+
+        lats = df_cont["LATITUD"].astype(float).values
+        lons = df_cont["LONGITUD"].astype(float).values
+        valores = df_cont["ULTIMA_HORA"].astype(float).values
+
+        if normalizar:
+            min_val, max_val = np.nanmin(valores), np.nanmax(valores)
+            valores = (valores - min_val) / (max_val - min_val + 1e-9)
+
+        lat_min, lat_max = lats.min(), lats.max()
+        lon_min, lon_max = lons.min(), lons.max()
+        grid_lat, grid_lon = np.mgrid[lat_min:lat_max:resolucion, lon_min:lon_max:resolucion]
+
+        grid_val = griddata(
+            points=(lats, lons),
+            values=valores,
+            xi=(grid_lat, grid_lon),
+            method="cubic",
+            fill_value=np.nan
+        )
+
+        heatData = []
+        for i in range(grid_lat.shape[0]):
+            for j in range(grid_lat.shape[1]):
+                val = grid_val[i, j]
+                if not np.isnan(val):
+                    heatData.append([float(grid_lat[i, j]), float(grid_lon[i, j]), float(val)])
+
+        if len(heatData) > max_puntos:
+            heatData = random.sample(heatData, max_puntos)
+
+        heatmaps[cont] = heatData
+
+    return heatmaps
+
