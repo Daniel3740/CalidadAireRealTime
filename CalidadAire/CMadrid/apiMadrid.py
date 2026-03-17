@@ -1,11 +1,14 @@
 import pandas as pd
 
-from .datosMadrid import df_final
+from .datosMadrid import df_final, generar_interpolaciones
 
 class DatosCalidadAire:
     def __init__(self):
         # Cargamos el DataFrame procesado por datosMadrid
         self.df = df_final.copy()
+
+        # Guardamos los datos de interpolación antes de renombrar columnas
+        self.interpolaciones = generar_interpolaciones(self.df)
 
         # Convertir NaN a None para evitar 'nan' inválido en JS al renderizar datos en template
         self.df = self.df.astype(object).where(pd.notnull(self.df), None)
@@ -28,3 +31,6 @@ class DatosCalidadAire:
 
     def obtener_datos(self):
         return self.df
+
+    def obtener_interpolaciones(self):
+        return self.interpolaciones
