@@ -109,6 +109,39 @@
         popupAnchor: [0, -40]
     });
 
+    // Función para calcular distancia euclidiana
+    function getDistance(lat1, lng1, lat2, lng2) {
+        return Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2));
+    }
+
+    // Función para obtener valores de contaminantes cercanos
+    function getNearbyPollutants(lat, lng) {
+        var pollutants = ['NOx', 'NO2', 'PM10', 'PM2.5', 'O3', 'SO2'];
+        var values = [];
+
+        pollutants.forEach(function(pollutant) {
+            if (interpolaciones[pollutant]) {
+                var points = interpolaciones[pollutant];
+                var closest = null;
+                var minDist = Infinity;
+
+                points.forEach(function(point) {
+                    var dist = getDistance(lat, lng, point[0], point[1]);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = point[2];
+                    }
+                });
+
+                values.push(closest !== null ? closest : 0);
+            } else {
+                values.push(0);
+            }
+        });
+
+        return values;
+    }
+
     // Añadir funcionalidad de clic: colocar marker único y hacer zoom
     map.on('click', function(e) {
         // Si existe un marcador anterior, removerlo
@@ -122,6 +155,13 @@
             draggable: true
         }).addTo(map);
 
+        // Actualizar gráfica con datos de la posición inicial
+        var initialData = getNearbyPollutants(e.latlng.lat, e.latlng.lng);
+        if (window.pollutantsChart) {
+            window.pollutantsChart.data.datasets[0].data = initialData;
+            window.pollutantsChart.update();
+        }
+
         // Hacer zoom en esa posición aumentando el zoom en 2 niveles
         // map.setView(e.latlng, map.getZoom() + 2);
 
@@ -129,6 +169,14 @@
         currentMarker.on('dragend', function() {
             var newLatLng = currentMarker.getLatLng();
             console.log('Marcador movido a:', newLatLng.lat, newLatLng.lng);
+
+            // Actualizar gráfica con datos cercanos
+            var newData = getNearbyPollutants(newLatLng.lat, newLatLng.lng);
+
+            if (window.pollutantsChart) {
+                window.pollutantsChart.data.datasets[0].data = newData;
+                window.pollutantsChart.update();
+            }
         });
     });
 </script>

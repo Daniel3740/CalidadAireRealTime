@@ -9,7 +9,7 @@
 
 <script>
 var ctx = document.getElementById('pollutantsChart').getContext('2d');
-var pollutantsChart = new Chart(ctx, {
+window.pollutantsChart = new Chart(ctx, {
     type: 'bar',
     data: {
         labels: ['NO₂', 'PM10', 'PM2.5', 'O₃', 'SO₂'],
