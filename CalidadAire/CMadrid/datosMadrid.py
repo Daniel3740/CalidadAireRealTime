@@ -63,7 +63,7 @@ dia = str(hoy.day).zfill(2)
 df_mediciones = df_mediciones[
     (df_mediciones["ANO"] == ano) &
     (df_mediciones["MES"] == mes) &
-    (df_mediciones["DIA"] == '16')
+    (df_mediciones["DIA"] == dia)
 ]
 
 # -------------------------
