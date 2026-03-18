@@ -3,9 +3,10 @@
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
 <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
 <style>
     .google-marker {
         font-size: 40px;
@@ -18,7 +19,7 @@
 
 <script>
     // Inicializar el mapa centrado en la Comunidad de Madrid con zoom 11
-    var map = L.map('map').setView([40.4168, -3.7038], 11);
+    var map = L.map('map').setView([40.4168, -3.7038], 10);
 
     // Añadir capa de tiles de OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -27,23 +28,74 @@
 
     // Añadir marcadores de estaciones
     var stations = {{ stations|default:'[]'|safe }};
+
     stations.forEach(function(station) {
         // usar latitud/longitud como fuente principal (mantenemos lat/lon por compatibilidad)
         var latitude = station.latitud || station.lat;
         var longitude = station.longitud || station.lon;
 
-        L.marker([latitude, longitude]).addTo(map).bindPopup(
-            'Estación: ' + (station.estacion_codigo || station.COD_ESTACION) + '<br>' +
-            'Municipio: ' + (station.estacion_municipio || station.NOMBRE_ESTACION) + '<br>' +
-            'Dirección: ' + (station.estacion_direccion_postal || station.NOM_TIPO || 'N/A')
-        );
+        const customDivIcon = L.divIcon({
+            className: 'custom-marker',
+            html: `
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <div style="
+                width: 14px;
+                height: 14px;
+                background: #28a745;
+                border-radius: 50%;
+                border: 2px solid white;
+                box-shadow: 0 0 6px rgba(0,0,0,0.5);
+            "></div>
+            <div style="
+                width: 2px;
+                height: 10px;
+                background: #28a745;
+            "><div style="font-size:16px;">🌦️</div></div>
+        </div>
+    `,
+            iconSize: [20, 30],
+            iconAnchor: [10, 30]
+        });
+
+        L.marker([latitude, longitude], { icon: customDivIcon })
+            .addTo(map)
+            .bindPopup(
+                'Estación: ' + (station.estacion_codigo || station.COD_ESTACION) + '<br>' +
+                'Municipio: ' + (station.estacion_municipio || station.NOMBRE_ESTACION) + '<br>' +
+                'Dirección: ' + (station.estacion_direccion_postal || station.NOM_TIPO || 'N/A')
+            );
     });
 
     var interpolaciones = {{ interpolaciones|default:'{}'|safe }};
-    var heat = L.heatLayer(interpolaciones['PM2.5'], {
-  radius: 25,
-  blur: 15,
-}).addTo(map);
+    console.log(interpolaciones['PM2.5']);
+
+    let heatData = [];
+
+    // recorrer todas las claves
+    Object.values(interpolaciones).forEach(lista => {
+        lista.forEach(p => {
+            heatData.push(p);
+        });
+    });
+
+    // opcional: normalizar intensidades
+    const values = heatData.map(p => p[2]);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    heatData = heatData.map(p => [
+        p[0],
+        p[1],
+        (p[2] - min) / (max - min)
+    ]);
+
+    L.heatLayer(heatData, {
+        radius: 50,
+        blur: 30,
+        minOpacity: 0.5
+    }).addTo(map);
+
+    console.log(L.heatLayer);
 
     // Variable para almacenar el marcador actual
     var currentMarker = null;
@@ -63,15 +115,16 @@
         if (currentMarker) {
             map.removeLayer(currentMarker);
         }
+
         // Crear un nuevo marker en la posición del clic con icono personalizado y draggable
-        currentMarker = L.marker(e.latlng, { 
+        currentMarker = L.marker(e.latlng, {
             icon: customIcon,
             draggable: true
         }).addTo(map);
-        
+
         // Hacer zoom en esa posición aumentando el zoom en 2 niveles
         // map.setView(e.latlng, map.getZoom() + 2);
-        
+
         // Agregar evento para cuando se arrastra el marcador
         currentMarker.on('dragend', function() {
             var newLatLng = currentMarker.getLatLng();

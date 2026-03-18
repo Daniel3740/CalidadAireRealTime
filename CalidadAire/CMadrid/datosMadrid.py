@@ -124,7 +124,7 @@ df_final = df_final.astype(object).where(pd.notnull(df_final), 'None')
 print(df_final.head())
 
 
-def generar_interpolaciones(df, resolucion=0.005, normalizar=True, max_puntos=5):
+def generar_interpolaciones(df, resolucion=0.005, normalizar=True, max_puntos=50):
     heatmaps = {}
     contaminantes = df["CONTAMINANTE"].unique()
 
